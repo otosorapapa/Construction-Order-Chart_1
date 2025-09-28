@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable
+from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+
+PLOTLY_IMPORT_ERROR: str | None = None
+
+try:  # pragma: no cover - optional dependency import
+    import plotly.express as px
+    import plotly.graph_objects as go
+except ModuleNotFoundError as exc:  # pragma: no cover - executed when Plotly is missing
+    px = None  # type: ignore[assignment]
+    go = None  # type: ignore[assignment]
+    PLOTLY_IMPORT_ERROR = str(exc)
 
 from utils.dates import make_month_annotations, make_tickvals, make_week_lines
 
@@ -50,6 +58,17 @@ def build_gantt_dataframe(
     return merged
 
 
+def _ensure_plotly_modules() -> tuple[Any, Any]:
+    """Return Plotly modules or raise a helpful error when unavailable."""
+
+    if go is None or px is None:
+        raise ModuleNotFoundError(
+            "Plotly is required to render the gantt chart. "
+            "Install the optional dependencies with `pip install -r requirements.txt`."
+        )
+    return go, px
+
+
 def build_gantt_figure(
     projects_df: pd.DataFrame,
     segments_df: pd.DataFrame,
@@ -60,11 +79,12 @@ def build_gantt_figure(
 ) -> go.Figure:
     """Create a Plotly figure with custom annotations and grid lines."""
 
+    go_module, px_module = _ensure_plotly_modules()
     selected_ids = set(selected_ids or [])
 
     data = build_gantt_dataframe(projects_df, segments_df, view_start, view_end)
     if data.empty:
-        fig = go.Figure()
+        fig = go_module.Figure()
         fig.update_layout(
             title="表示対象のデータがありません",
             xaxis=dict(title="期間", type="date"),
@@ -74,7 +94,7 @@ def build_gantt_figure(
 
     data["opacity"] = np.where(data["project_id"].isin(selected_ids), 1.0, 0.7)
 
-    fig = px.timeline(
+    fig = px_module.timeline(
         data,
         x_start="start",
         x_end="end",
@@ -157,4 +177,10 @@ def build_gantt_figure(
     return fig
 
 
-__all__ = ["build_gantt_figure", "build_gantt_dataframe", "DEFAULT_COLOR", "PROGRESS_COLORS"]
+__all__ = [
+    "build_gantt_figure",
+    "build_gantt_dataframe",
+    "DEFAULT_COLOR",
+    "PROGRESS_COLORS",
+    "PLOTLY_IMPORT_ERROR",
+]
