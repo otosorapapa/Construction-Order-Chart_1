@@ -7,21 +7,39 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-import plotly.io as pio
 import streamlit as st
-from streamlit_plotly_events import plotly_events
 
 from components.editor import render_editor
 from components.filters import render_sidebar
-from components.gantt import build_gantt_figure
 from utils import Segment
 from utils.state import init_state, redo, undo
+
+PLOTLY_IMPORT_ERROR: str | None = None
+
+try:  # pragma: no cover - environment dependent import
+    import plotly.io as pio
+    from streamlit_plotly_events import plotly_events
+    from components.gantt import build_gantt_figure
+except ModuleNotFoundError as exc:  # pragma: no cover - executed when optional deps missing
+    pio = None  # type: ignore[assignment]
+    plotly_events = None  # type: ignore[assignment]
+    build_gantt_figure = None  # type: ignore[assignment]
+    PLOTLY_IMPORT_ERROR = str(exc)
 
 DATA_DIR = Path(__file__).parent / "data"
 DEFAULT_FILE = DATA_DIR / "sample_projects.csv"
 
 
 st.set_page_config(page_title="工事受注案件ガントチャート", layout="wide")
+
+if PLOTLY_IMPORT_ERROR:
+    st.error(
+        "Plotly 関連のライブラリが見つかりません。"
+        "アプリを利用するには `pip install -r requirements.txt` を実行して"
+        "必要な依存関係をインストールしてください。\n\n"
+        f"詳細: {PLOTLY_IMPORT_ERROR}"
+    )
+    st.stop()
 
 
 def _load_initial_projects() -> pd.DataFrame:
