@@ -45,8 +45,10 @@ st.set_page_config(page_title="工事受注案件ガントチャート", layout=
 if PLOTLY_IMPORT_ERROR:
     st.error(
         "Plotly 関連のライブラリが見つかりません。\n"
-        "アプリを利用するには `pip install -r requirements.txt` を実行して"
-        "必要な依存関係をインストールしてください。\n\n"
+        "アプリを利用するには以下のコマンドのいずれかを実行して"
+        "必要な依存関係をインストールしてください。\n"
+        "  - `pip install -r requirements.txt` (streamlit-gantt ディレクトリで実行)\n"
+        "  - `pip install -r streamlit-gantt/requirements.txt` (リポジトリルートで実行)\n\n"
         f"詳細: {PLOTLY_IMPORT_ERROR}"
     )
     st.stop()
