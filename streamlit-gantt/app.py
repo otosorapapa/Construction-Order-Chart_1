@@ -19,12 +19,22 @@ PLOTLY_IMPORT_ERROR: str | None = None
 try:  # pragma: no cover - environment dependent import
     import plotly.io as pio
     from streamlit_plotly_events import plotly_events
-    from components.gantt import build_gantt_figure
 except ModuleNotFoundError as exc:  # pragma: no cover - executed when optional deps missing
     pio = None  # type: ignore[assignment]
     plotly_events = None  # type: ignore[assignment]
+    PLOTLY_IMPORT_ERROR = str(exc)
+
+try:  # pragma: no cover - environment dependent import
+    from components.gantt import (
+        PLOTLY_IMPORT_ERROR as GANTT_PLOTLY_IMPORT_ERROR,
+        build_gantt_figure,
+    )
+except ModuleNotFoundError as exc:  # pragma: no cover - executed when optional deps missing
     build_gantt_figure = None  # type: ignore[assignment]
     PLOTLY_IMPORT_ERROR = str(exc)
+else:  # pragma: no cover - executed when imports succeed
+    if GANTT_PLOTLY_IMPORT_ERROR and not PLOTLY_IMPORT_ERROR:
+        PLOTLY_IMPORT_ERROR = GANTT_PLOTLY_IMPORT_ERROR
 
 DATA_DIR = Path(__file__).parent / "data"
 DEFAULT_FILE = DATA_DIR / "sample_projects.csv"
