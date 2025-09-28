@@ -7,6 +7,10 @@ This repository contains a Streamlit application for visualising construction pr
 1. Create and activate a virtual environment (optional but recommended).
 2. Install the Python dependencies:
    ```bash
+   # From the repository root
+   pip install -r requirements.txt
+
+   # Or, if you prefer working inside the app directory
    pip install -r streamlit-gantt/requirements.txt
    ```
 3. Launch the Streamlit app:
@@ -14,6 +18,6 @@ This repository contains a Streamlit application for visualising construction pr
    streamlit run streamlit-gantt/app.py
    ```
 
-If you encounter an error such as `No module named 'plotly'`, it means the dependencies have not been installed yet. Running the `pip install -r streamlit-gantt/requirements.txt` command above will install Plotly and the other required libraries.
+If you encounter an error such as `No module named 'plotly'`, it means the dependencies have not been installed yet. Running either of the installation commands above will install Plotly and the other required libraries.
 
 Refer to [`streamlit-gantt/README.md`](streamlit-gantt/README.md) for more detailed documentation, including feature descriptions and testing instructions.
