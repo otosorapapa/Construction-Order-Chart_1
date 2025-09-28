@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 from datetime import datetime
 from pathlib import Path
 from typing import List
@@ -62,6 +63,12 @@ def _load_initial_projects() -> pd.DataFrame:
     if "color" not in df.columns:
         df["color"] = ""
     return df
+
+
+def _has_kaleido() -> bool:
+    """Return True when Kaleido is available for static image export."""
+
+    return importlib.util.find_spec("kaleido") is not None
 
 
 def _build_segments(projects: pd.DataFrame) -> pd.DataFrame:
@@ -197,11 +204,14 @@ with col_chart:
 with col_export:
     st.markdown("#### 出力")
     if st.button("PNG生成", use_container_width=True):
-        try:
-            png_bytes = pio.to_image(fig, format="png", engine="kaleido", width=1600, height=900, scale=2)
-            st.download_button("PNGダウンロード", png_bytes, file_name="gantt.png")
-        except Exception as exc:  # noqa: BLE001
-            st.error(f"PNG 出力に失敗しました: {exc}")
+        if not _has_kaleido():
+            st.info("PNG 出力には Kaleido が必要です。`pip install kaleido` を実行してください。")
+        else:
+            try:
+                png_bytes = pio.to_image(fig, format="png", engine="kaleido", width=1600, height=900, scale=2)
+                st.download_button("PNGダウンロード", png_bytes, file_name="gantt.png")
+            except Exception as exc:  # noqa: BLE001
+                st.error(f"PNG 出力に失敗しました: {exc}")
 
 if event:
     selected = event[0]

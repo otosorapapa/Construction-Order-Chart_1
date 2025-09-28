@@ -13,6 +13,10 @@ This repository contains a Streamlit application for visualising construction pr
    # Or, if you prefer working inside the app directory
    pip install -r streamlit-gantt/requirements.txt
    ```
+   If you need PNG export support, install [Kaleido](https://github.com/plotly/Kaleido) as an optional dependency:
+   ```bash
+   pip install kaleido
+   ```
 3. Launch the Streamlit app:
    ```bash
    streamlit run streamlit-gantt/app.py

@@ -18,6 +18,9 @@ venv\\Scripts\\Activate.ps1
 # 依存関係のインストール
 pip install -r requirements.txt
 
+# PNG 出力が必要な場合は追加で Kaleido をインストール
+pip install kaleido
+
 # アプリの起動
 streamlit run app.py
 ```
