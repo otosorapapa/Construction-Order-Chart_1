@@ -8,17 +8,17 @@ from typing import Any, Iterable
 import numpy as np
 import pandas as pd
 
+from utils.dependencies import import_plotly_core
+from utils.dates import make_month_annotations, make_tickvals, make_week_lines
+
 PLOTLY_IMPORT_ERROR: str | None = None
 
 try:  # pragma: no cover - optional dependency import
-    import plotly.express as px
-    import plotly.graph_objects as go
+    go, px = import_plotly_core()
 except ModuleNotFoundError as exc:  # pragma: no cover - executed when Plotly is missing
-    px = None  # type: ignore[assignment]
     go = None  # type: ignore[assignment]
+    px = None  # type: ignore[assignment]
     PLOTLY_IMPORT_ERROR = str(exc)
-
-from utils.dates import make_month_annotations, make_tickvals, make_week_lines
 
 DEFAULT_COLOR = "#f97316"
 PROGRESS_COLORS = {
@@ -61,11 +61,16 @@ def build_gantt_dataframe(
 def _ensure_plotly_modules() -> tuple[Any, Any]:
     """Return Plotly modules or raise a helpful error when unavailable."""
 
+    global go, px, PLOTLY_IMPORT_ERROR
+
     if go is None or px is None:
-        raise ModuleNotFoundError(
-            "Plotly is required to render the gantt chart. "
-            "Install the optional dependencies with `pip install -r requirements.txt`."
-        )
+        try:
+            go, px = import_plotly_core()
+        except ModuleNotFoundError as exc:  # pragma: no cover - executed when Plotly is missing
+            PLOTLY_IMPORT_ERROR = str(exc)
+            raise
+        else:  # pragma: no cover - executed when imports succeed
+            PLOTLY_IMPORT_ERROR = None
     return go, px
 
 

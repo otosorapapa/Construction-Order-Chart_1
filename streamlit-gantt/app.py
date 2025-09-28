@@ -13,13 +13,13 @@ import streamlit as st
 from components.editor import render_editor
 from components.filters import render_sidebar
 from utils import Segment
+from utils.dependencies import import_plotly_streamlit_runtime
 from utils.state import init_state, redo, undo
 
 PLOTLY_IMPORT_ERROR: str | None = None
 
 try:  # pragma: no cover - environment dependent import
-    import plotly.io as pio
-    from streamlit_plotly_events import plotly_events
+    pio, plotly_events = import_plotly_streamlit_runtime()
 except ModuleNotFoundError as exc:  # pragma: no cover - executed when optional deps missing
     pio = None  # type: ignore[assignment]
     plotly_events = None  # type: ignore[assignment]
@@ -44,14 +44,7 @@ DEFAULT_FILE = DATA_DIR / "sample_projects.csv"
 st.set_page_config(page_title="工事受注案件ガントチャート", layout="wide")
 
 if PLOTLY_IMPORT_ERROR:
-    st.error(
-        "Plotly 関連のライブラリが見つかりません。\n"
-        "アプリを利用するには以下のコマンドのいずれかを実行して"
-        "必要な依存関係をインストールしてください。\n"
-        "  - `pip install -r requirements.txt` (streamlit-gantt ディレクトリで実行)\n"
-        "  - `pip install -r streamlit-gantt/requirements.txt` (リポジトリルートで実行)\n\n"
-        f"詳細: {PLOTLY_IMPORT_ERROR}"
-    )
+    st.error(PLOTLY_IMPORT_ERROR)
     st.stop()
 
 
